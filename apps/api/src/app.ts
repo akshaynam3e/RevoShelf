@@ -12,6 +12,8 @@ import { conversationsRouter } from './routes/conversations';
 import { reportsRouter } from './routes/reports';
 import { adminRouter } from './routes/admin';
 
+const allowedOrigins = new Set([...corsOrigins, 'https://revoshelf-web.onrender.com']);
+
 export function createApp() {
   const app = express();
   app.set('trust proxy', 1); // Render terminates TLS in front of the service
@@ -21,7 +23,7 @@ export function createApp() {
     cors({
       origin(origin, cb) {
         // Non-browser clients send no Origin header; browsers must be on the allowlist.
-        if (!origin || corsOrigins.includes(origin.replace(/\/$/, ''))) return cb(null, true);
+        if (!origin || allowedOrigins.has(origin.replace(/\/$/, ''))) return cb(null, true);
         return cb(null, false);
       },
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
