@@ -54,7 +54,7 @@ export function Layout() {
                   {menu && (
                     <div className="card absolute right-0 mt-2 w-52 p-1 text-sm shadow-lg">
                       <p className="truncate px-3 py-2 font-semibold">{me?.displayName}</p>
-                      {[['/settings', 'Profile & settings'], ['/verify', 'Student verification'], ['/my-listings', 'My listings'], ['/saved', 'Saved items'], ['/safety', 'Safety guidelines']].map(([to, t]) => <Link key={to} to={to} className="block rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800">{t}</Link>)}
+                      {[['/settings', 'Profile & settings'], ['/my-listings', 'My listings'], ['/saved', 'Saved items'], ['/safety', 'Safety guidelines']].map(([to, t]) => <Link key={to} to={to} className="block rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800">{t}</Link>)}
                       <button className="block w-full rounded-lg px-3 py-2 text-left text-red-600 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={signOut}>Log out</button>
                     </div>
                   )}
@@ -79,13 +79,12 @@ export function Layout() {
   );
 }
 
-export function ProtectedRoute({ admin = false, allowIncomplete = false }: { admin?: boolean; allowIncomplete?: boolean }) {
+export function ProtectedRoute({ admin = false }: { admin?: boolean; allowIncomplete?: boolean }) {
   const { session, me, loading } = useAuth();
   const loc = useLocation();
   if (loading) return <Spinner />;
   if (!session) return <Navigate to={`/login?next=${encodeURIComponent(loc.pathname + loc.search)}`} replace />;
   if (me?.suspended) return <div className="card mx-auto max-w-md p-6 text-center"><h1 className="text-xl font-bold">Account suspended</h1><p className="mt-2 text-sm text-slate-500">Your account has been suspended by a moderator. Contact your campus administrator if you believe this is a mistake.</p></div>;
   if (admin && me?.role !== 'admin') return <Navigate to="/" replace />;
-  if (!allowIncomplete && me && !me.campusId) return <Navigate to="/settings" replace state={{ incomplete: true }} />;
   return <Outlet />;
 }

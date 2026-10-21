@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { createConversationSchema, messageSchema } from '@revoshelf/shared';
 import { supabaseAdmin } from '../supabase';
 import { AppError, dbError, h } from '../lib/errors';
-import { authed, verified } from '../middleware/auth';
+import { authed } from '../middleware/auth';
 import { toConversation, toMessage } from '../lib/dto';
 import { uuidParam } from '../lib/params';
 
@@ -23,7 +23,7 @@ async function participantConversation(conversationId: string, userId: string) {
   return data;
 }
 
-conversationsRouter.post('/conversations', ...verified, h(async (req, res) => {
+conversationsRouter.post('/conversations', ...authed, h(async (req, res) => {
   const { listingId } = createConversationSchema.parse(req.body);
   const me = req.user!.id;
   const { data: listing, error } = await supabaseAdmin.from('listings').select('id,seller_id,status').eq('id', listingId).maybeSingle();

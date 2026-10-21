@@ -34,7 +34,7 @@ export function toListing(r: any, favorited?: boolean): ListingDTO {
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     seller: toSeller(r.seller),
-    campus: { id: r.campus?.id ?? r.campus_id, name: r.campus?.name ?? '', collegeName: r.campus?.college?.name ?? '' },
+    campus: { id: r.campus?.id ?? r.campus_id ?? '', name: r.campus?.name ?? 'Open marketplace', collegeName: r.campus?.college?.name ?? '' },
     images,
     ...(favorited === undefined ? {} : { favorited }),
   };

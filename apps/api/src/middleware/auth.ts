@@ -43,7 +43,7 @@ export async function resolveUser(authorization: string | undefined): Promise<Au
   let { data: profile } = await supabaseAdmin.from('profiles').select(PROFILE_SELECT).eq('firebase_uid', u.uid).maybeSingle();
   if (!profile) {
     const displayName = String(u.name ?? u.email?.split('@')[0] ?? `User ${u.uid.slice(0, 6)}`).slice(0, 60);
-    const created = await supabaseAdmin.from('profiles').insert({ id: randomUUID(), firebase_uid: u.uid, display_name: displayName }).select(PROFILE_SELECT).single();
+    const created = await supabaseAdmin.from('profiles').insert({ id: randomUUID(), firebase_uid: u.uid, display_name: displayName, student_status: 'verified', verified_at: new Date().toISOString() }).select(PROFILE_SELECT).single();
     if (created.error || !created.data) return null;
     profile = created.data;
   }

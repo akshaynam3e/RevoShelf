@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { canSellerTransition, listingInputSchema, listingQuerySchema, listingStatusSchema, listingUpdateSchema, MAX_IMAGES_PER_LISTING, type Page } from '@revoshelf/shared';
 import { supabaseAdmin } from '../supabase';
 import { AppError, dbError, h } from '../lib/errors';
-import { authed, optionalAuth, verified } from '../middleware/auth';
+import { authed, optionalAuth } from '../middleware/auth';
 import { LISTING_SELECT, toListing } from '../lib/dto';
 import { uuidParam } from '../lib/params';
 import { env } from '../env';
@@ -76,15 +76,14 @@ listingsRouter.get('/listings/:id', optionalAuth, h(async (req, res) => {
   res.json(toListing(row, req.user ? favs.has(id) : undefined));
 }));
 
-listingsRouter.post('/listings', ...verified, h(async (req, res) => {
+listingsRouter.post('/listings', ...authed, h(async (req, res) => {
   const body = listingInputSchema.parse(req.body);
   const profile = req.user!.profile;
-  if (!profile.campus_id) throw new AppError(400, 'Choose your campus before listing items', 'PROFILE_INCOMPLETE');
   const { data, error } = await supabaseAdmin
     .from('listings')
     .insert({
       seller_id: req.user!.id, // from the verified token, never the client
-      campus_id: profile.campus_id, // from the profile, never the client
+      campus_id: profile.campus_id ?? null,
       title: body.title,
       description: body.description,
       price_inr: body.priceInr,

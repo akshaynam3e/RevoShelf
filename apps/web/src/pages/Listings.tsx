@@ -6,9 +6,8 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Avatar, CardSkeletons, Empty, ErrorBox, ListingCard, Notice, ReportDialog, Spinner, StatusBadge, VerifiedBadge, useToggleFavorite } from '../components/ui';
-import { ApiError, ago, api, errMsg, inr } from '../lib/api';
+import { ago, api, errMsg, inr } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import { CampusPicker } from './Account';
 
 /* ---------------- Marketplace ---------------- */
 export function Marketplace() {
@@ -81,7 +80,6 @@ export function ListingDetail() {
   if (q.isError) return <ErrorBox error={q.error} />;
   const l = q.data!;
   const own = me?.id === l.sellerId;
-  const needsVerify = chat.error instanceof ApiError && chat.error.code === 'STUDENT_VERIFICATION_REQUIRED';
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <div className="space-y-2">
@@ -103,7 +101,7 @@ export function ListingDetail() {
               {['active', 'reserved'].includes(l.status) && <button className="btn-primary flex-1" disabled={chat.isPending} onClick={() => (session ? chat.mutate() : nav(`/login?next=/listings/${l.id}`))}>{chat.isPending ? 'Opening…' : '💬 Message seller'}</button>}
               <button className="btn-secondary" aria-pressed={!!l.favorited} onClick={() => toggle(l)}>{l.favorited ? '❤️ Saved' : '🤍 Save'}</button>
             </div>
-            {chat.isError && <Notice kind="error">{errMsg(chat.error)} {needsVerify && <Link className="font-semibold underline" to="/verify">Verify now</Link>}</Notice>}
+            {chat.isError && <Notice kind="error">{errMsg(chat.error)}</Notice>}
             {session && <button className="text-sm text-slate-500 underline" onClick={() => setReport(true)}>🚩 Report this listing</button>}
             <Notice>Meet in a public campus spot and inspect the item before paying. RevoShelf never handles payments. <Link className="underline" to="/safety">Safety tips</Link></Notice>
           </div>
@@ -160,11 +158,9 @@ export function ListingForm() {
   });
   if (editing && existing.isLoading) return <Spinner />;
   if (editing && existing.isError) return <ErrorBox error={existing.error} />;
-  const needsVerify = me && me.studentStatus !== 'verified';
   return (
     <form className="mx-auto max-w-xl space-y-4" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
       <h1 className="text-2xl font-extrabold">{editing ? 'Edit listing' : 'Sell an item'}</h1>
-      {needsVerify && <Notice kind="error">You need to be a verified student to list items. <Link className="font-semibold underline" to="/verify">Verify now</Link></Notice>}
       <div><label className="label" htmlFor="t">Title</label><input id="t" className="input" required minLength={3} maxLength={120} value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
       <div><label className="label" htmlFor="d">Description</label><textarea id="d" className="input" rows={5} required minLength={10} maxLength={2000} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /><p className="mt-1 text-right text-xs text-slate-400">{f.description.length}/2000</p></div>
       <div className="grid grid-cols-2 gap-3">
