@@ -178,7 +178,6 @@ export function ListingForm() {
         {fileErr && <p className="mt-1 text-sm text-red-600" role="alert">{fileErr}</p>}
       </div>
       {save.isError && <Notice kind="error">{errMsg(save.error)}</Notice>}
-      <button className="btn-primary w-full" disabled={save.isPending || !!needsVerify}>{save.isPending ? 'Saving…' : editing ? 'Save changes' : 'Publish listing'}</button>
     </form>
   );
 }
