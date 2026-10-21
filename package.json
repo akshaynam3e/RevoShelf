@@ -1,0 +1,15 @@
+{
+  "name": "revoshelf",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["packages/*", "apps/*"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build:shared": "npm run build -w @revoshelf/shared",
+    "dev:api": "npm run build:shared && npm run dev -w @revoshelf/api",
+    "dev:web": "npm run dev -w @revoshelf/web",
+    "typecheck": "npm run build:shared && npm run typecheck -w @revoshelf/api && npm run typecheck -w @revoshelf/web",
+    "test": "npm run test -w @revoshelf/shared && npm run test -w @revoshelf/api",
+    "build": "npm run build:shared && npm run build -w @revoshelf/api && npm run build -w @revoshelf/web"
+  }
+}

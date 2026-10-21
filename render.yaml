@@ -1,0 +1,46 @@
+# Render Blueprint. Create via Dashboard -> New -> Blueprint, pointing at this repo.
+# Values marked sync:false must be entered in the Render dashboard (they are never stored in git).
+services:
+  - type: web
+    name: revoshelf-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install --include=dev && npm run build:shared && npm run build -w @revoshelf/api
+    startCommand: npm run start -w @revoshelf/api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false # e.g. https://revoshelf-web.onrender.com (comma separated, no trailing slash)
+
+  - type: web
+    name: revoshelf-web
+    runtime: static
+    rootDir: .
+    buildCommand: npm install --include=dev && npm run build:shared && npm run build -w @revoshelf/web
+    staticPublishPath: apps/web/dist
+    routes:
+      - type: rewrite # React Router SPA fallback
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: VITE_API_BASE_URL
+        sync: false # https://revoshelf-api.onrender.com/api/v1
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: VITE_FIREBASE_CONFIG
+        sync: false
